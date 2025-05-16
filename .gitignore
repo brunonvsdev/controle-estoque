@@ -1,0 +1,24 @@
+# Ambiente virtual e variáveis de ambiente
+venv/
+.env/
+.venv/
+*.env
+
+# Banco de dados SQLite
+data/estoque.db
+
+# Cache do Python
+__pycache__/
+*.pyc
+
+# Configurações específicas do VS Code
+.vscode/
+
+# Configurações do sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs e arquivos temporários
+*.log
+*.tmp
