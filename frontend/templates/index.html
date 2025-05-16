@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Estoque</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <header class="bg-primary text-white py-3">
+        <div class="container">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-box-seam fs-3 me-2"></i>
+                <h1 class="m-0">Gerenciador de Estoque</h1>
+            </div>
+        </div>
+    </header>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" onclick="mostrarSecao('produtos')">Produtos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="mostrarSecao('vendas')">Vendas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="mostrarSecao('consultas')">Consultas</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container my-4">
+        <!-- Seção Produtos -->
+        <section id="secao-produtos" class="section-container">
+            <div class="section-content">
+                <div class="row mb-4">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h2 class="h5 mb-0">Cadastrar Produto</h2>
+                            </div>
+                            <div class="card-body">
+                                <form id="form-produto">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="nome" class="form-label">Nome</label>
+                                            <input type="text" class="form-control" id="nome" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="descricao" class="form-label">Descrição</label>
+                                            <input type="text" class="form-control" id="descricao">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-3">
+                                            <label for="quantidade" class="form-label">Quantidade</label>
+                                            <input type="number" class="form-control" id="quantidade" min="0" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="preco" class="form-label">Preço (R$)</label>
+                                            <input type="number" step="0.01" class="form-control" id="preco" min="0" required>
+                                        </div>
+                                        <div class="col-md-6 d-flex align-items-end">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-plus-circle"></i> Adicionar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card text-white bg-info mb-3">
+                            <div class="card-body text-center">
+                                <h3 class="card-title">{{ total_estoque }}</h3>
+                                <p class="card-text">Produtos em estoque</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card text-white bg-success mb-3">
+                            <div class="card-body text-center">
+                                <h3 class="card-title">{{ total_vendidos }}</h3>
+                                <p class="card-text">Produtos vendidos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h5 mb-0">Lista de Produtos</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="tabela-produtos">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Descrição</th>
+                                        <th>Estoque</th>
+                                        <th>Preço</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for produto in produtos %}
+                                    <tr data-id="{{ produto.id }}">
+                                        <td>{{ produto.nome }}</td>
+                                        <td>{{ produto.descricao }}</td>
+                                        <td>{{ produto.quantidade }}</td>
+                                        <td>R$ {{ "%.2f"|format(produto.preco) }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-warning btn-editar me-1">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger btn-excluir">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção Vendas -->
+        <section id="secao-vendas" class="section-container" style="display: none;">
+            <div class="section-content">
+                <div class="row mb-4">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h2 class="h5 mb-0">Registrar Venda</h2>
+                            </div>
+                            <div class="card-body">
+                                <form id="form-venda">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="produto-venda" class="form-label">Produto</label>
+                                            <select class="form-select" id="produto-venda" required>
+                                                {% for produto in produtos %}
+                                                <option value="{{ produto.id }}">{{ produto.nome }} (Estoque: {{ produto.quantidade }})</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="quantidade-venda" class="form-label">Quantidade</label>
+                                            <input type="number" class="form-control" id="quantidade-venda" min="1" required>
+                                        </div>
+                                        <div class="col-md-3 d-flex align-items-end">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-cart-check"></i> Registrar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="h5 mb-0">Histórico de Vendas</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Quantidade</th>
+                                        <th>Data</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for venda in vendas %}
+                                    <tr>
+                                        <td>{{ venda['produto_nome'] }}</td>
+                                        <td>{{ venda['quantidade'] }}</td>
+                                        <td>{{ venda['data'].strftime('%d/%m/%Y %H:%M') }}</td>
+                                        <td>R$ {{ "%.2f"|format(venda['total']) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção Consultas -->
+        <section id="secao-consultas" class="section-container" style="display: none;">
+            <div class="section-content">
+                <div class="row mb-4">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h2 class="h5 mb-0">Buscar Produtos</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" id="termo-busca" placeholder="Digite o nome do produto">
+                                    <button class="btn btn-primary" type="button" id="btn-buscar">
+                                        <i class="bi bi-search"></i> Buscar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="tabela-busca">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Descrição</th>
+                                        <th>Estoque</th>
+                                        <th>Preço</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultados-busca">
+                                    <!-- Resultados da busca serão inseridos aqui via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Edição -->
+    <div class="modal fade" id="modalEdicao" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Produto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-edicao">
+                        <input type="hidden" id="edit-id">
+                        <div class="mb-3">
+                            <label for="edit-nome" class="form-label">Nome</label>
+                            <input type="text" class="form-control" id="edit-nome" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-descricao" class="form-label">Descrição</label>
+                            <input type="text" class="form-control" id="edit-descricao">
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="edit-quantidade" class="form-label">Quantidade</label>
+                                <input type="number" class="form-control" id="edit-quantidade" min="0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="edit-preco" class="form-label">Preço (R$)</label>
+                                <input type="number" step="0.01" class="form-control" id="edit-preco" min="0" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-salvar-edicao">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/estoque.js') }}"></script>
+</body>
+</html>
