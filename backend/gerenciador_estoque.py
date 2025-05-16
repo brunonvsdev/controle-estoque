@@ -1,0 +1,60 @@
+from datetime import datetime
+from banco_dados import BancoDados
+
+
+class Produto:
+    def __init__(self, id=None, nome="", descricao="", quantidade=0, preco=0.0):
+        self.id = id
+        self.nome = nome
+        self.descricao = descricao
+        self.quantidade = quantidade
+        self.preco = preco
+    
+    def formatar_preco(self):
+        return f"R$ {self.preco:.2f}"
+
+class GerenciadorEstoque:
+    def __init__(self):
+        self.bd = BancoDados()
+        self.bd.criar_tabelas()
+
+    def adicionar_produto(self, nome, descricao, quantidade, preco):
+        self.bd.inserir_produto(nome, descricao, quantidade, preco)
+
+    def editar_produto(self, produto_id, nome, descricao, quantidade, preco):
+        self.bd.atualizar_produto(produto_id, nome, descricao, quantidade, preco)
+
+    def remover_produto(self, produto_id):
+        self.bd.remover_produto(produto_id)
+
+    def listar_produtos(self):
+        return [Produto(*p) for p in self.bd.listar_produtos()]
+
+    def buscar_produto(self, produto_id):
+        produto = self.bd.buscar_produto(produto_id)
+        return Produto(*produto) if produto else None
+
+    def buscar_produtos_por_nome(self, nome):
+        return [Produto(*p) for p in self.bd.buscar_produto_por_nome(nome)]
+
+    def registrar_venda(self, produto_id, quantidade):
+        return self.bd.registrar_venda(produto_id, quantidade)
+
+    def listar_vendas(self):
+        vendas = self.bd.listar_vendas()
+        return [{
+            'id': v[0],
+            'produto_nome': v[1],
+            'quantidade': v[2],
+            'preco_unitario': v[3],
+            'total': v[4],
+            'data': datetime.strptime(v[5], '%Y-%m-%d %H:%M:%S')
+        } for v in vendas]
+
+
+
+    def total_produtos_vendidos(self):
+        return self.bd.total_produtos_vendidos()
+
+    def total_produtos_estoque(self):
+        return self.bd.total_produtos_estoque()
