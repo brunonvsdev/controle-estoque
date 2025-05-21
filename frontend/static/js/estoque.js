@@ -5,12 +5,22 @@
             });
             document.getElementById(`secao-${secao}`).style.display = 'block';
             
-            // Atualiza a navegação ativa
             document.querySelectorAll('nav a').forEach(link => {
                 link.classList.remove('active');
             });
             event.target.classList.add('active');
+        
+            // Salva a seção ativa
+            localStorage.setItem('secaoAtiva', secao);
         }
+        
+
+        // Verifica se tem seção salva e exibe
+        document.addEventListener('DOMContentLoaded', () => {
+            const secaoSalva = localStorage.getItem('secaoAtiva') || 'produtos';
+            mostrarSecao(secaoSalva);
+        });
+
 
         // Adicionar produto
         document.getElementById('form-produto').addEventListener('submit', function(e) {
@@ -142,11 +152,13 @@
             .then(data => {
                 if (data.success) {
                     alert(data.message);
+                    localStorage.setItem('secaoAtiva', 'vendas');
                     window.location.reload();
                 } else {
                     alert('Erro: ' + (data.error || data.message));
                 }
             })
+            
             .catch(error => {
                 console.error('Error:', error);
                 alert('Erro ao registrar venda');
