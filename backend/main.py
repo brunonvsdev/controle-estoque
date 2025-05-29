@@ -27,14 +27,20 @@ def index():
 @app.route('/api/produtos', methods=['POST'])
 def adicionar_produto():
     data = request.get_json()
+    forcar = data.get('forcar', False)
     try:
         gerenciador.adicionar_produto(
             nome=data['nome'],
             descricao=data['descricao'],
             quantidade=int(data['quantidade']),
-            preco=float(data['preco'])
+            preco=float(data['preco']),
+            forcar=forcar
         )
         return jsonify({'success': True}), 201
+    except ValueError as e:
+        if str(e) == 'duplicado':
+            return jsonify({'success': False, 'duplicate': True}), 200
+        return jsonify({'success': False, 'error': str(e)}), 400
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 400
 
