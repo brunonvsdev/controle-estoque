@@ -18,7 +18,12 @@ class GerenciadorEstoque:
         self.bd = BancoDados()
         self.bd.criar_tabelas()
 
-    def adicionar_produto(self, nome, descricao, quantidade, preco):
+    def adicionar_produto(self, nome, descricao, quantidade, preco, forcar=False):
+        # Verifica se já existe produto com o mesmo nome
+        produtos_iguais = self.bd.buscar_produto_por_nome(nome)
+        existe_igual = any(p[1].strip().lower() == nome.strip().lower() for p in produtos_iguais)
+        if existe_igual and not forcar:
+            raise ValueError('duplicado')
         self.bd.inserir_produto(nome, descricao, quantidade, preco)
 
     def editar_produto(self, produto_id, nome, descricao, quantidade, preco):
