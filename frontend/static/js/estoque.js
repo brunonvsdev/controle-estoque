@@ -33,26 +33,36 @@
                 preco: document.getElementById('preco').value
             };
 
-            fetch('/api/produtos', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(produto)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Produto adicionado com sucesso!');
-                    window.location.reload();
-                } else {
-                    alert('Erro: ' + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Erro ao adicionar produto');
-            });
+            function enviarProduto(forcar = false) {
+                const body = { ...produto };
+                if (forcar) body.forcar = true;
+                fetch('/api/produtos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Produto adicionado com sucesso!');
+                        window.location.reload();
+                    } else if (data.duplicate) {
+                        if (confirm('Você já tem um produto cadastrado com esse nome, deseja continuar?')) {
+                            enviarProduto(true);
+                        }
+                    } else {
+                        alert('Erro: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Erro ao adicionar produto');
+                });
+            }
+
+            enviarProduto();
         });
 
         // Editar produto
