@@ -1,22 +1,68 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
 from gerenciador_estoque import GerenciadorEstoque
 import os
+import re
 
 app = Flask(
     __name__,
     template_folder=os.path.join("..", "frontend", "templates"),
     static_folder=os.path.join("..", "frontend", "static")
 )
+app.secret_key = 'sua_chave_secreta'
 
 gerenciador = GerenciadorEstoque()
 
+def cpf_valido(cpf):
+    return re.match(r'^\d{3}\.\d{3}\.\d{3}-\d{2}$', cpf)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        email = request.form['email']
+        senha = request.form['senha']
+        usuario = gerenciador.autenticar_usuario(email, senha)
+        if usuario:
+            session['usuario'] = usuario[1]  # nome
+            session['usuario_email'] = usuario[2]
+            return redirect(url_for('index'))
+        else:
+            error = 'E-mail ou senha inválidos.'
+    return render_template('login.html', error=error)
+
+@app.route('/cadastro', methods=['GET', 'POST'])
+def cadastro():
+    error = None
+    if request.method == 'POST':
+        nome = request.form['nome']
+        email = request.form['email']
+        cpf = request.form['cpf']
+        senha = request.form['senha']
+        if not cpf_valido(cpf):
+            error = 'CPF inválido. Use o formato 000.000.000-00.'
+        else:
+            try:
+                gerenciador.cadastrar_usuario(nome, email, cpf, senha)
+                flash('Cadastro realizado com sucesso! Faça login.')
+                return redirect(url_for('login'))
+            except ValueError as e:
+                error = str(e)
+    return render_template('cadastro.html', error=error)
+
+@app.route('/logout')
+def logout():
+    session.pop('usuario', None)
+    session.pop('usuario_email', None)
+    return redirect(url_for('login'))
+
 @app.route('/')
 def index():
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
     produtos = gerenciador.listar_produtos()
     vendas = gerenciador.listar_vendas()
     total_estoque = gerenciador.total_produtos_estoque()
     total_vendidos = gerenciador.total_produtos_vendidos()
-    
     return render_template('index.html', 
                          produtos=produtos,
                          vendas=vendas,
