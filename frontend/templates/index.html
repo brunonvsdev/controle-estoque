@@ -14,9 +14,14 @@
 <body>
     <header class="bg-primary text-white py-3">
         <div class="container">
-            <div class="d-flex align-items-center">
-                <i class="bi bi-box-seam fs-3 me-2"></i>
-                <h1 class="m-0">Gerenciador de Estoque</h1>
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-box-seam fs-3 me-2"></i>
+                    <h1 class="m-0">Gerenciador de Estoque</h1>
+                </div>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-light ms-3">
+                    <i class="bi bi-box-arrow-right"></i> Sair
+                </a>
             </div>
         </div>
     </header>
