@@ -44,6 +44,17 @@ class BancoDados:
             )
         ''')
 
+        # Nova tabela de usuários
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS usuarios (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nome TEXT NOT NULL,
+                email TEXT NOT NULL UNIQUE,
+                cpf TEXT NOT NULL UNIQUE,
+                senha TEXT NOT NULL
+            )
+        ''')
+
         self.conexao.commit()
         self.desconectar()
 
@@ -143,3 +154,27 @@ class BancoDados:
         total = self.cursor.fetchone()[0] or 0
         self.desconectar()
         return total
+
+    # Métodos de usuário
+    def inserir_usuario(self, nome, email, cpf, senha):
+        self.conectar()
+        self.cursor.execute('''
+            INSERT INTO usuarios (nome, email, cpf, senha)
+            VALUES (?, ?, ?, ?)
+        ''', (nome, email, cpf, senha))
+        self.conexao.commit()
+        self.desconectar()
+
+    def buscar_usuario_por_email(self, email):
+        self.conectar()
+        self.cursor.execute('SELECT * FROM usuarios WHERE email=?', (email,))
+        usuario = self.cursor.fetchone()
+        self.desconectar()
+        return usuario
+
+    def buscar_usuario_por_cpf(self, cpf):
+        self.conectar()
+        self.cursor.execute('SELECT * FROM usuarios WHERE cpf=?', (cpf,))
+        usuario = self.cursor.fetchone()
+        self.desconectar()
+        return usuario
