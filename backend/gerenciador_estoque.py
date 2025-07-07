@@ -56,10 +56,22 @@ class GerenciadorEstoque:
             'data': datetime.strptime(v[5], '%Y-%m-%d %H:%M:%S')
         } for v in vendas]
 
-
-
     def total_produtos_vendidos(self):
         return self.bd.total_produtos_vendidos()
 
     def total_produtos_estoque(self):
         return self.bd.total_produtos_estoque()
+
+    # --- Usuários ---
+    def cadastrar_usuario(self, nome, email, cpf, senha):
+        if self.bd.buscar_usuario_por_email(email):
+            raise ValueError('E-mail já cadastrado.')
+        if self.bd.buscar_usuario_por_cpf(cpf):
+            raise ValueError('CPF já cadastrado.')
+        self.bd.inserir_usuario(nome, email, cpf, senha)
+
+    def autenticar_usuario(self, email, senha):
+        usuario = self.bd.buscar_usuario_por_email(email)
+        if usuario and usuario[4] == senha:
+            return usuario
+        return None
