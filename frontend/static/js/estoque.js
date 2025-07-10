@@ -1,3 +1,13 @@
+/*
+Módulo estoque.js - Lógica do controle de estoque (frontend)
+
+Este arquivo contém as funções JavaScript responsáveis pela interação do usuário com a interface de controle de estoque.
+Inclui manipulação de eventos, requisições ao backend, atualização dinâmica da interface e validações.
+
+Autor: Bruno Novais Costa Simões
+Data: 10/07/2025
+Versão: 1.0
+*/
         // Funções para alternar entre seções
         function mostrarSecao(secao) {
             document.querySelectorAll('section').forEach(s => {

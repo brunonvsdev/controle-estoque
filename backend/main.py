@@ -1,22 +1,41 @@
+"""
+Módulo main.py - Inicialização e execução do backend
+
+Este módulo é o ponto de entrada do backend do sistema de controle de estoque.
+Responsável por inicializar a aplicação, definir rotas e integrar os módulos de lógica e banco de dados.
+
+Autor: Bruno Novais Costa Simões
+Data: 10/07/2025
+Versão: 1.0
+"""
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
 from gerenciador_estoque import GerenciadorEstoque
 import os
 import re
 
+# Inicializa a aplicação Flask, definindo os diretórios de templates e arquivos estáticos
 app = Flask(
     __name__,
     template_folder=os.path.join("..", "frontend", "templates"),
     static_folder=os.path.join("..", "frontend", "static")
 )
-app.secret_key = 'sua_chave_secreta'
+app.secret_key = 'sua_chave_secreta'  # Chave para sessões seguras
 
-gerenciador = GerenciadorEstoque()
+gerenciador = GerenciadorEstoque()  # Instância do gerenciador de estoque
 
 def cpf_valido(cpf):
+    """
+    Valida o formato do CPF (000.000.000-00).
+    """
     return re.match(r'^\d{3}\.\d{3}\.\d{3}-\d{2}$', cpf)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Rota para login de usuários.
+    GET: Exibe o formulário de login.
+    POST: Processa o login e cria sessão se autenticado.
+    """
     error = None
     if request.method == 'POST':
         email = request.form['email']
@@ -32,6 +51,11 @@ def login():
 
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
+    """
+    Rota para cadastro de novos usuários.
+    GET: Exibe o formulário de cadastro.
+    POST: Processa o cadastro e redireciona para login se bem-sucedido.
+    """
     error = None
     if request.method == 'POST':
         nome = request.form['nome']
@@ -51,12 +75,19 @@ def cadastro():
 
 @app.route('/logout')
 def logout():
+    """
+    Rota para logout do usuário. Limpa a sessão e redireciona para login.
+    """
     session.pop('usuario', None)
     session.pop('usuario_email', None)
     return redirect(url_for('login'))
 
 @app.route('/')
 def index():
+    """
+    Rota principal do sistema (dashboard).
+    Exibe produtos, vendas e totais, apenas se o usuário estiver autenticado.
+    """
     if 'usuario' not in session:
         return redirect(url_for('login'))
     produtos = gerenciador.listar_produtos()
@@ -69,9 +100,14 @@ def index():
                          total_estoque=total_estoque,
                          total_vendidos=total_vendidos)
 
-# API endpoints
+# --- API endpoints para operações AJAX ---
+
 @app.route('/api/produtos', methods=['POST'])
 def adicionar_produto():
+    """
+    Endpoint para adicionar um novo produto via requisição JSON.
+    Retorna sucesso ou erro (incluindo duplicidade).
+    """
     data = request.get_json()
     forcar = data.get('forcar', False)
     try:
@@ -92,6 +128,9 @@ def adicionar_produto():
 
 @app.route('/api/produtos/<int:id>', methods=['PUT', 'DELETE'])
 def gerenciar_produto(id):
+    """
+    Endpoint para editar (PUT) ou remover (DELETE) um produto pelo ID.
+    """
     if request.method == 'PUT':
         data = request.get_json()
         try:
@@ -114,6 +153,10 @@ def gerenciar_produto(id):
 
 @app.route('/api/vendas', methods=['POST'])
 def registrar_venda():
+    """
+    Endpoint para registrar uma venda de produto via requisição JSON.
+    Retorna sucesso ou erro.
+    """
     data = request.get_json()
     try:
         success = gerenciador.registrar_venda(
@@ -126,6 +169,9 @@ def registrar_venda():
 
 @app.route('/api/buscar', methods=['GET'])
 def buscar_produtos():
+    """
+    Endpoint para buscar produtos pelo nome (parcial), retornando lista em JSON.
+    """
     termo = request.args.get('termo', '')
     produtos = gerenciador.buscar_produtos_por_nome(termo) if termo else []
     return jsonify([{
@@ -134,4 +180,5 @@ def buscar_produtos():
     } for p in produtos])
 
 if __name__ == '__main__':
+    # Executa o servidor Flask em modo debug
     app.run(debug=True)

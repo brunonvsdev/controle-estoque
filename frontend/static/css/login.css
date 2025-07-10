@@ -1,3 +1,13 @@
+/*
+Módulo login.css - Estilos da página de login
+
+Este arquivo contém as definições de estilos CSS para a página de login do sistema de controle de estoque.
+Inclui formatação do layout, cores, espaçamento e responsividade para o formulário de autenticação.
+
+Autor: Bruno Novais Costa Simões
+Data: 10/07/2025
+Versão: 1.0
+*/
 body {
     background-color: var(--cor-clara, #f8f9fa);
     min-height: 100vh;
